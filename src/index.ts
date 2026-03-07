@@ -13,6 +13,16 @@ import {
 import { renderLeaderboard, renderApiDocs, renderOgMetaRedirect } from "./web";
 import { renderLeaderboardImage } from "./image";
 
+function ts() {
+  return new Date().toISOString();
+}
+function log(...args: unknown[]) {
+  console.log(ts(), ...args);
+}
+function logError(...args: unknown[]) {
+  console.error(ts(), ...args);
+}
+
 const PORT = parseInt(process.env.PORT || "3000");
 const HCB_POLL_INTERVAL = 10_000;
 const AIRTABLE_SYNC_INTERVAL = 30_000;
@@ -20,22 +30,22 @@ const AIRTABLE_SYNC_INTERVAL = 30_000;
 // -- Regenerate leaderboard image --
 async function regenerateImage() {
   try {
-    console.log("[image] regenerating leaderboard...");
+    log("[image] regenerating leaderboard...");
     const png = await renderLeaderboardImage(getDonations());
     setLeaderboardPng(png);
-    console.log("[image] done");
+    log("[image] done");
   } catch (err) {
-    console.error("[image] generation failed:", err);
+    logError("[image] generation failed:", err);
   }
 }
 
 // -- Sync Airtable -> RAM -> regenerate image --
 async function syncFromAirtable() {
   await withLock(async () => {
-    console.log("[airtable] syncing to RAM...");
+    log("[airtable] syncing to RAM...");
     const records = await fetchAllRecords();
     replaceTransactions(records);
-    console.log(`[airtable] loaded ${records.length} transactions into RAM (${getDonations().length} donations)`);
+    log(`[airtable] loaded ${records.length} transactions into RAM (${getDonations().length} donations)`);
   });
   await regenerateImage();
 }
@@ -61,11 +71,11 @@ async function pollHcb() {
       }
     }
     if (newOnes.length === 0) {
-      console.log(`[hcb] polled ${hcbTransactions.length} transactions, no new ones`);
+      log(`[hcb] polled ${hcbTransactions.length} transactions, no new ones`);
       return;
     }
 
-    console.log(`[hcb] found ${newOnes.length} new transaction(s)`);
+    log(`[hcb] found ${newOnes.length} new transaction(s)`);
 
     for (const t of newOnes) {
       addKnownHcbId(t.id);
@@ -84,7 +94,7 @@ async function pollHcb() {
           donorName: rawName || undefined,
         });
       } catch (err) {
-        console.error("[ai] classification failed, falling back:", err);
+        logError("[ai] classification failed, falling back:", err);
         result = {
           isDonation: t.type === "donation" && t.amount_cents > 0,
           displayName: rawName || "Anonymous Donor",
@@ -104,13 +114,13 @@ async function pollHcb() {
           "HCB Ledger Date": t.date,
         });
         const tag = result.isDonation ? "donation" : t.type;
-        console.log(`[airtable] created [${tag}] ${result.displayName} ($${Math.abs(t.amount_cents) / 100})`);
+        log(`[airtable] created [${tag}] ${result.displayName} ($${Math.abs(t.amount_cents) / 100})`);
       });
     }
 
     await syncFromAirtable();
   } catch (err) {
-    console.error("[hcb] poll error:", err);
+    logError("[hcb] poll error:", err);
   }
 }
 
@@ -128,7 +138,7 @@ setInterval(() => {
     .slice(0, 3)
     .map(([ip, count]) => `${ip}(${count})`)
     .join(", ") || "none";
-  console.log(`[stats] ${reqCount} reqs in ${Math.round(elapsed)}s (${rps} rps) | top IPs: ${top3}`);
+  log(`[stats] ${reqCount} reqs in ${Math.round(elapsed)}s (${rps} rps) | top IPs: ${top3}`);
   reqCount = 0;
   ipCounts.clear();
   statsStart = Date.now();
@@ -251,7 +261,7 @@ const server = Bun.serve({
   },
 });
 
-console.log(`Server running at http://localhost:${server.port}`);
+log(`Server running at http://localhost:${server.port}`);
 
 // -- Startup --
 await syncFromAirtable();
