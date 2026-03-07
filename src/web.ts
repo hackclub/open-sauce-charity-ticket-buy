@@ -435,7 +435,7 @@ export function renderLeaderboard(donations: AirtableTransaction[]): string {
 <body>
 
 <div class="header">
-  <a href="https://hcb.hackclub.com/donations/start/open-sauce-charity-ticket-buy"><img src="https://images.fillout.com/orgid-81/flowpublicid-eLhFehpKG6us/widgetid-xexU/ofUQhk5BnAhqRWyaxT3XkS/Group-247-(2).png?a=umwAPqS1BXFJ6qdL412GLv" alt="Open Sauce Charity Ticket Buy"></a>
+  <a href="https://hack.club/opensauce"><img src="https://images.fillout.com/orgid-81/flowpublicid-eLhFehpKG6us/widgetid-xexU/ofUQhk5BnAhqRWyaxT3XkS/Group-247-(2).png?a=umwAPqS1BXFJ6qdL412GLv" alt="Open Sauce Charity Ticket Buy"></a>
 </div>
 
 <div class="total-wrap">
