@@ -14,7 +14,7 @@ import { renderLeaderboard, renderApiDocs, renderOgMetaRedirect } from "./web";
 import { renderLeaderboardImage } from "./image";
 
 const PORT = parseInt(process.env.PORT || "3000");
-const HCB_POLL_INTERVAL = 5_000;
+const HCB_POLL_INTERVAL = 10_000;
 const AIRTABLE_SYNC_INTERVAL = 30_000;
 
 // -- Regenerate leaderboard image --
