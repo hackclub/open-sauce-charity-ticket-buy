@@ -151,35 +151,40 @@ function getClientIp(req: Request, fallbackIp: string): string {
   return fallbackIp;
 }
 
-// -- Rate limiting: 5 req/s per IP --
-const rateMap = new Map<string, number[]>();
-const RATE_LIMIT = 5;
+// -- Rate limiting: 5 req/s for pages/API, 25 req/s for assets --
 const RATE_WINDOW = 1000;
+const pageRateMap = new Map<string, number[]>();
+const PAGE_RATE_LIMIT = 5;
+const assetRateMap = new Map<string, number[]>();
+const ASSET_RATE_LIMIT = 25;
 
-function isRateLimited(ip: string): boolean {
+function isRateLimited(ip: string, isAsset: boolean): boolean {
+  const map = isAsset ? assetRateMap : pageRateMap;
+  const limit = isAsset ? ASSET_RATE_LIMIT : PAGE_RATE_LIMIT;
   const now = Date.now();
-  let timestamps = rateMap.get(ip);
+  let timestamps = map.get(ip);
   if (!timestamps) {
     timestamps = [];
-    rateMap.set(ip, timestamps);
+    map.set(ip, timestamps);
   }
-  // Remove old timestamps
   while (timestamps.length > 0 && timestamps[0] <= now - RATE_WINDOW) {
     timestamps.shift();
   }
-  if (timestamps.length >= RATE_LIMIT) return true;
+  if (timestamps.length >= limit) return true;
   timestamps.push(now);
   return false;
 }
 
-// Clean up rate map periodically
+// Clean up rate maps periodically
 setInterval(() => {
   const now = Date.now();
-  for (const [ip, timestamps] of rateMap) {
-    while (timestamps.length > 0 && timestamps[0] <= now - RATE_WINDOW) {
-      timestamps.shift();
+  for (const map of [pageRateMap, assetRateMap]) {
+    for (const [ip, timestamps] of map) {
+      while (timestamps.length > 0 && timestamps[0] <= now - RATE_WINDOW) {
+        timestamps.shift();
+      }
+      if (timestamps.length === 0) map.delete(ip);
     }
-    if (timestamps.length === 0) rateMap.delete(ip);
   }
 }, 10_000);
 
@@ -191,7 +196,8 @@ const server = Bun.serve({
     const ip = getClientIp(req, server.requestIP(req)?.address ?? "unknown");
     reqCount++;
     ipCounts.set(ip, (ipCounts.get(ip) ?? 0) + 1);
-    if (isRateLimited(ip)) {
+    const isAsset = url.pathname !== "/" && !url.pathname.startsWith("/api");
+    if (isRateLimited(ip, isAsset)) {
       return new Response("Too Many Requests", { status: 429 });
     }
 
