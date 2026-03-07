@@ -45,6 +45,13 @@ function timeAgo(iso: string): string {
   return `${days} days ago`;
 }
 
+function rankStyle(rank: number): { backgroundImage?: string; background?: string; color: string } {
+  if (rank === 1) return { backgroundImage: "linear-gradient(135deg, #d4af37, #f2d06b)", color: "#5c3d0e" };
+  if (rank === 2) return { backgroundImage: "linear-gradient(135deg, #8a8a8a, #c0c0c0)", color: "#333333" };
+  if (rank === 3) return { backgroundImage: "linear-gradient(135deg, #8c5a2e, #c48a52)", color: "#f8e8d1" };
+  return { background: "#ad7858", color: "#f8e8d1" };
+}
+
 function Card({
   rank,
   name,
@@ -56,6 +63,7 @@ function Card({
   amount: number | null;
   time: string;
 }) {
+  const medal = rankStyle(rank);
   return (
     <div
       style={{
@@ -76,12 +84,11 @@ function Card({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "#ad7858",
+            ...medal,
             borderRadius: "50%",
             width: 64,
             height: 64,
             fontSize: 32,
-            color: "#f8e8d1",
             flexShrink: 0,
           }}
         >
