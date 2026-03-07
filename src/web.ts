@@ -28,7 +28,7 @@ export function renderOgMetaRedirect(): string {
 <link rel="icon" type="image/png" href="/favicon.png">
 <style>
   body { margin: 0; background: #F8EFD9; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; }
-  p { opacity: 0; animation: show 0s 5s forwards; }
+  p { opacity: 0; animation: show 0s 3s forwards; }
   @keyframes show { to { opacity: 1; } }
 </style>
 </head>
