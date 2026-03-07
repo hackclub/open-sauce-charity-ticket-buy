@@ -135,6 +135,22 @@ setInterval(() => {
   statsStart = Date.now();
 }, STATS_INTERVAL);
 
+// -- Client IP extraction (Cloudflare -> Traefik -> container) --
+function getClientIp(req: Request, fallbackIp: string): string {
+  // Cloudflare sets this to the real visitor IP
+  const cfIp = req.headers.get("cf-connecting-ip");
+  if (cfIp) return cfIp.trim();
+
+  // Traefik / standard reverse proxy
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) return xff.split(",")[0].trim();
+
+  const xRealIp = req.headers.get("x-real-ip");
+  if (xRealIp) return xRealIp.trim();
+
+  return fallbackIp;
+}
+
 // -- Rate limiting: 5 req/s per IP --
 const rateMap = new Map<string, number[]>();
 const RATE_LIMIT = 5;
@@ -172,7 +188,7 @@ const server = Bun.serve({
   port: PORT,
   async fetch(req) {
     const url = new URL(req.url);
-    const ip = server.requestIP(req)?.address ?? "unknown";
+    const ip = getClientIp(req, server.requestIP(req)?.address ?? "unknown");
     reqCount++;
     ipCounts.set(ip, (ipCounts.get(ip) ?? 0) + 1);
     if (isRateLimited(ip)) {
