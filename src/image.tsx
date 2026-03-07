@@ -1,6 +1,7 @@
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import type { AirtableTransaction } from "./airtable";
+import { mergeDonations, type MergedDonor } from "./store";
 
 let juaFont: ArrayBuffer | null = null;
 let notoFont: ArrayBuffer | null = null;
@@ -113,10 +114,12 @@ function Card({
 }
 
 function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
-  const allTime = [...donations].sort((a, b) => b.amount - a.amount).slice(0, 5);
+  const allTime = mergeDonations(donations)
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
   const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  const recent = donations
-    .filter((d) => d.date && new Date(d.date).getTime() > oneDayAgo)
+  const recentDonations = donations.filter((d) => d.date && new Date(d.date).getTime() > oneDayAgo);
+  const recent = mergeDonations(recentDonations)
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5);
 
@@ -165,7 +168,7 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
               rank={i + 1}
               name={allTime[i]?.name || null}
               amount={allTime[i]?.amount ?? null}
-              time={allTime[i] ? formatDate(allTime[i].date) : ""}
+              time={allTime[i] ? formatDate(allTime[i].latestDate) : ""}
             />
           ))}
         </div>
@@ -187,7 +190,7 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
               rank={i + 1}
               name={recent[i]?.name || null}
               amount={recent[i]?.amount ?? null}
-              time={recent[i] ? timeAgo(recent[i].date) : ""}
+              time={recent[i] ? (recent[i].count > 1 ? `${formatMoney(recent[i].latestAmount)} more ${timeAgo(recent[i].latestDate)}` : timeAgo(recent[i].latestDate)) : ""}
             />
           ))}
         </div>

@@ -11,7 +11,7 @@ import {
   replaceTransactions,
   withLock,
 } from "./store";
-import { renderLeaderboard } from "./web";
+import { renderLeaderboard, renderApiDocs } from "./web";
 import { renderLeaderboardImage } from "./image";
 
 const PORT = parseInt(process.env.PORT || "3000");
@@ -115,14 +115,83 @@ async function pollHcb() {
   }
 }
 
+// -- Request stats --
+let reqCount = 0;
+let statsStart = Date.now();
+const ipCounts = new Map<string, number>();
+
+const STATS_INTERVAL = 30_000;
+setInterval(() => {
+  const elapsed = (Date.now() - statsStart) / 1000;
+  const rps = elapsed > 0 ? (reqCount / elapsed).toFixed(2) : "0";
+  const top3 = [...ipCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([ip, count]) => `${ip}(${count})`)
+    .join(", ") || "none";
+  console.log(`[stats] ${reqCount} reqs in ${Math.round(elapsed)}s (${rps} rps) | top IPs: ${top3}`);
+  reqCount = 0;
+  ipCounts.clear();
+  statsStart = Date.now();
+}, STATS_INTERVAL);
+
+// -- Rate limiting: 5 req/s per IP --
+const rateMap = new Map<string, number[]>();
+const RATE_LIMIT = 5;
+const RATE_WINDOW = 1000;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  let timestamps = rateMap.get(ip);
+  if (!timestamps) {
+    timestamps = [];
+    rateMap.set(ip, timestamps);
+  }
+  // Remove old timestamps
+  while (timestamps.length > 0 && timestamps[0] <= now - RATE_WINDOW) {
+    timestamps.shift();
+  }
+  if (timestamps.length >= RATE_LIMIT) return true;
+  timestamps.push(now);
+  return false;
+}
+
+// Clean up rate map periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, timestamps] of rateMap) {
+    while (timestamps.length > 0 && timestamps[0] <= now - RATE_WINDOW) {
+      timestamps.shift();
+    }
+    if (timestamps.length === 0) rateMap.delete(ip);
+  }
+}, 10_000);
+
 // -- HTTP Server --
 const server = Bun.serve({
   port: PORT,
   async fetch(req) {
     const url = new URL(req.url);
+    const ip = server.requestIP(req)?.address ?? "unknown";
+    reqCount++;
+    ipCounts.set(ip, (ipCounts.get(ip) ?? 0) + 1);
+    if (isRateLimited(ip)) {
+      return new Response("Too Many Requests", { status: 429 });
+    }
+
+    if (url.pathname === "/favicon.png") {
+      return new Response(Bun.file(import.meta.dir + "/favicon.png"));
+    }
 
     if (url.pathname === "/") {
       return new Response(renderLeaderboard(getDonations()), {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
+
+    if (url.pathname === "/api") {
+      const baseUrl = `${url.protocol}//${url.host}`;
+      return new Response(renderApiDocs(baseUrl), {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
     }
@@ -142,7 +211,11 @@ const server = Bun.serve({
     }
 
     if (url.pathname === "/api/donations") {
-      return Response.json(getDonations());
+      return Response.json(getDonations().map(d => ({
+        name: d.name,
+        amount: d.amount,
+        date: d.date,
+      })));
     }
 
     if (url.pathname === "/api/transactions") {
