@@ -26,9 +26,14 @@ export function renderOgMetaRedirect(): string {
 <meta name="twitter:image" content="${imageUrl}">
 <meta http-equiv="refresh" content="0;url=${redirectUrl}">
 <link rel="icon" type="image/png" href="/favicon.png">
+<style>
+  body { margin: 0; background: #F8EFD9; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; }
+  p { opacity: 0; }
+</style>
 </head>
 <body>
 <p>Redirecting to <a href="${redirectUrl}">${redirectUrl}</a>...</p>
+<script>setTimeout(function(){ document.querySelector('p').style.opacity = '1'; }, 5000);</script>
 </body>
 </html>`;
 }
