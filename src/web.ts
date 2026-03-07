@@ -435,7 +435,7 @@ export function renderLeaderboard(donations: AirtableTransaction[]): string {
 <body>
 
 <div class="header">
-  <a href="https://hack.club/opensauce"><img src="https://images.fillout.com/orgid-81/flowpublicid-eLhFehpKG6us/widgetid-xexU/ofUQhk5BnAhqRWyaxT3XkS/Group-247-(2).png?a=umwAPqS1BXFJ6qdL412GLv" alt="Open Sauce Charity Ticket Buy"></a>
+  <a href="https://hcb.hackclub.com/donations/start/open-sauce-charity-ticket-buy"><img src="https://images.fillout.com/orgid-81/flowpublicid-eLhFehpKG6us/widgetid-xexU/ofUQhk5BnAhqRWyaxT3XkS/Group-247-(2).png?a=umwAPqS1BXFJ6qdL412GLv" alt="Open Sauce Charity Ticket Buy"></a>
 </div>
 
 <div class="total-wrap">
@@ -444,14 +444,14 @@ export function renderLeaderboard(donations: AirtableTransaction[]): string {
     <div class="total-amount" id="total-amount">$0</div>
     <div class="total-donors" id="total-donors"></div>
   </div>
-  <a href="https://hack.club/opensauce" class="donate-qr">
+  <a href="https://hcb.hackclub.com/donations/start/open-sauce-charity-ticket-buy" class="donate-qr">
     ${qrSvg}
     <span>Donate Now &rarr;</span>
   </a>
 </div>
 
 <div class="donate-url">
-  <a href="https://hack.club/opensauce">hack.club/opensauce</a>
+  <a href="https://hcb.hackclub.com/donations/start/open-sauce-charity-ticket-buy">hcb.hackclub.com/donations/start/open-sauce-charity-ticket-buy</a>
 </div>
 
 <div class="live-badge"><span class="refresh-dot"></span> Live <span id="countdown">10</span>s</div>
