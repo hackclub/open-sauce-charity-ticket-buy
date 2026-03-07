@@ -8,7 +8,7 @@ export function renderOgMetaRedirect(): string {
   const redirectUrl = "https://forms.hackclub.com/t/eLhFehpKG6us?utm_campaign=opensauce";
   const imageUrl = "https://cdn.hackclub.com/019cc74b-6f0e-7562-8338-6a59e01dbf47/meta.jpg";
   const title = "Open Sauce Charity Ticket Buy";
-  const description = "Get your ticket to Open Sauce through Hack Club's charity ticket buy!";
+  const description = "Donate to send students to Open Sauce! Tax deductible in the US.";
 
   return `<!DOCTYPE html>
 <html lang="en">
