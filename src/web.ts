@@ -24,7 +24,7 @@ export function renderOgMetaRedirect(): string {
 <meta name="twitter:title" content="${title}">
 <meta name="twitter:description" content="${description}">
 <meta name="twitter:image" content="https://cdn.hackclub.com/019cc756-d5d7-7c31-a090-4ef232e60b36/meta-x.png">
-<meta http-equiv="refresh" content="0;url=${redirectUrl}">
+<script>window.location.replace("${redirectUrl}");</script>
 <link rel="icon" type="image/png" href="/favicon.png">
 <style>
   body { margin: 0; background: #F8EFD9; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; }
