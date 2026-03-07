@@ -11,7 +11,7 @@ import {
   replaceTransactions,
   withLock,
 } from "./store";
-import { renderLeaderboard, renderApiDocs } from "./web";
+import { renderLeaderboard, renderApiDocs, renderOgMetaRedirect } from "./web";
 import { renderLeaderboardImage } from "./image";
 
 const PORT = parseInt(process.env.PORT || "3000");
@@ -203,6 +203,12 @@ const server = Bun.serve({
 
     if (url.pathname === "/favicon.png") {
       return new Response(Bun.file(import.meta.dir + "/favicon.png"));
+    }
+
+    if (url.pathname === "/og-meta-redirect") {
+      return new Response(renderOgMetaRedirect(), {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
     }
 
     if (url.pathname === "/") {

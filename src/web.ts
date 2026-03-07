@@ -4,6 +4,35 @@ import { join } from "path";
 
 const qrSvg = readFileSync(join(import.meta.dir, "qr.svg"), "utf-8");
 
+export function renderOgMetaRedirect(): string {
+  const redirectUrl = "https://forms.hackclub.com/t/eLhFehpKG6us?utm_campaign=opensauce";
+  const imageUrl = "https://images.fillout.com/orgid-81/flowpublicid-eLhFehpKG6us/widgetid-xexU/ofUQhk5BnAhqRWyaxT3XkS/Group-247-(2).png?a=umwAPqS1BXFJ6qdL412GLv";
+  const title = "Open Sauce Charity Ticket Buy";
+  const description = "Get your ticket to Open Sauce through Hack Club's charity ticket buy!";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${description}">
+<meta property="og:image" content="${imageUrl}">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${title}">
+<meta name="twitter:description" content="${description}">
+<meta name="twitter:image" content="${imageUrl}">
+<meta http-equiv="refresh" content="0;url=${redirectUrl}">
+<link rel="icon" type="image/png" href="/favicon.png">
+</head>
+<body>
+<p>Redirecting to <a href="${redirectUrl}">${redirectUrl}</a>...</p>
+</body>
+</html>`;
+}
+
 export function renderApiDocs(baseUrl: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
