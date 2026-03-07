@@ -142,6 +142,10 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
 
   const rows = Array.from({ length: 5 }, (_, i) => i);
 
+  const allDonors = mergeDonations(donations);
+  const totalRaised = allDonors.reduce((sum, d) => sum + d.amount, 0);
+  const totalDonors = allDonors.length;
+
   return (
     <div
       style={{
@@ -156,6 +160,48 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
         fontFamily: "Jua, Noto Sans",
       }}
     >
+      {/* Total Raised + Total Donors */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 28 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            background: "#7a4841",
+            border: "6px solid #ad7858",
+            borderRadius: 24,
+            padding: "20px 48px",
+            boxShadow: "0 4px 0 0 #4d2b32",
+          }}
+        >
+          <div style={{ fontSize: 16, color: "rgba(248,232,209,0.75)", letterSpacing: 3 }}>
+            TOTAL RAISED
+          </div>
+          <div style={{ fontSize: 56, color: "#f8e8d1" }}>
+            {formatMoney(totalRaised)}
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#7a4841",
+            border: "6px solid #ad7858",
+            borderRadius: 24,
+            padding: "20px 48px",
+            boxShadow: "0 4px 0 0 #4d2b32",
+          }}
+        >
+          <div style={{ fontSize: 16, color: "rgba(248,232,209,0.75)", letterSpacing: 3 }}>
+            TOTAL DONORS
+          </div>
+          <div style={{ fontSize: 56, color: "#f8e8d1" }}>
+            {String(totalDonors)}
+          </div>
+        </div>
+      </div>
       <div style={{ display: "flex", gap: 24 }}>
         {/* All Time */}
         <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
@@ -224,7 +270,7 @@ export async function renderLeaderboardImage(
 
   const svg = await satori(<Leaderboard donations={donations} />, {
     width: 1000,
-    height: 880,
+    height: 1040,
     fonts: [
       {
         name: "Jua",
@@ -266,7 +312,7 @@ export async function renderLeaderboardImage(
   }
 
   // Crop by adjusting the SVG height proportionally and re-rendering
-  const svgHeight = 880;
+  const svgHeight = 1040;
   const scale = height / svgHeight; // rendered px per svg unit
   const newSvgHeight = Math.ceil(cropH / scale);
   const croppedSvg = svg
