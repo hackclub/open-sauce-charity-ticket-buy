@@ -200,13 +200,13 @@ const server = Bun.serve({
       const cached = getLeaderboardPng();
       if (cached) {
         return new Response(cached, {
-          headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=5" },
+          headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=5, s-maxage=5, must-revalidate" },
         });
       }
       const png = await renderLeaderboardImage(getDonations());
       setLeaderboardPng(png);
       return new Response(png, {
-        headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=5" },
+        headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=5, s-maxage=5, must-revalidate" },
       });
     }
 

@@ -407,6 +407,19 @@ export function renderLeaderboard(donations: AirtableTransaction[]): string {
 
   .empty-row { opacity: 0.3; }
 
+  .donate-url {
+    text-align: center;
+    padding: 0 20px 28px;
+    margin-top: 0;
+  }
+  .donate-url a {
+    font-size: 28px;
+    color: var(--brown-dark);
+    text-decoration: none;
+    text-shadow: -1px 2px 1px rgba(0,0,0,0.06);
+  }
+  .donate-url a:hover { text-decoration: underline; }
+
   .footer-link {
     text-align: center;
     padding: 32px 20px 0;
@@ -435,6 +448,10 @@ export function renderLeaderboard(donations: AirtableTransaction[]): string {
     ${qrSvg}
     <span>Donate Now &rarr;</span>
   </a>
+</div>
+
+<div class="donate-url">
+  <a href="https://hack.club/opensauce">hack.club/opensauce</a>
 </div>
 
 <div class="live-badge"><span class="refresh-dot"></span> Live <span id="countdown">10</span>s</div>
