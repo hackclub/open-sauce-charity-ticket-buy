@@ -23,7 +23,7 @@ export function renderOgMetaRedirect(): string {
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${title}">
 <meta name="twitter:description" content="${description}">
-<meta name="twitter:image" content="${imageUrl}">
+<meta name="twitter:image" content="https://cdn.hackclub.com/019cc756-d5d7-7c31-a090-4ef232e60b36/meta-x.png">
 <meta http-equiv="refresh" content="0;url=${redirectUrl}">
 <link rel="icon" type="image/png" href="/favicon.png">
 <style>
