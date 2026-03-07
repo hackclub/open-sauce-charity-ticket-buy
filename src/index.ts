@@ -3,7 +3,6 @@ import { fetchAllRecords, createRecord } from "./airtable";
 import { classifyTransaction } from "./ai";
 import {
   getDonations,
-  getTransactions,
   getLeaderboardPng,
   setLeaderboardPng,
   isHcbIdKnown,
@@ -247,9 +246,6 @@ const server = Bun.serve({
       })));
     }
 
-    if (url.pathname === "/api/transactions") {
-      return Response.json(getTransactions());
-    }
 
     return new Response("Not Found", { status: 404 });
   },
