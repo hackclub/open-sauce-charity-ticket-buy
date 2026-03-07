@@ -266,7 +266,7 @@ export async function renderLeaderboardImage(
   }
 
   // Crop by adjusting the SVG height proportionally and re-rendering
-  const svgHeight = 1040;
+  const svgHeight = 880;
   const scale = height / svgHeight; // rendered px per svg unit
   const newSvgHeight = Math.ceil(cropH / scale);
   const croppedSvg = svg
