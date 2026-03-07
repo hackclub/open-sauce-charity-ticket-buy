@@ -5,7 +5,7 @@ import { join } from "path";
 const qrSvg = readFileSync(join(import.meta.dir, "qr.svg"), "utf-8");
 
 export function renderOgMetaRedirect(): string {
-  const redirectUrl = "https://forms.hackclub.com/t/eLhFehpKG6us?utm_campaign=opensauce";
+  const redirectUrl = "https://forms.hackclub.com/t/eLhFehpKG6us?utm_campaign=opensauce&r=opensauce";
   const imageUrl = "https://cdn.hackclub.com/019cc74b-6f0e-7562-8338-6a59e01dbf47/meta.jpg";
   const title = "Open Sauce Charity Ticket Buy";
   const description = "Donate to send students to Open Sauce! Tax deductible in the US.";
