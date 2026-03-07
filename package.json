@@ -1,0 +1,17 @@
+{
+  "name": "open-sauce-charity-ticket-buy",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^1",
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/react": "^19.2.14",
+    "ai": "^4",
+    "react": "^19.2.4",
+    "satori": "^0.25.0",
+    "zod": "^4.3.6"
+  }
+}
