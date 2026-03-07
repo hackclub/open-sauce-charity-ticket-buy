@@ -451,7 +451,7 @@ export function renderLeaderboard(donations: AirtableTransaction[]): string {
 </div>
 
 <div class="donate-url">
-  <a href="https://hcb.hackclub.com/donations/start/open-sauce-charity-ticket-buy">hcb.hackclub.com/donations/start/open-sauce-charity-ticket-buy</a>
+  <a href="https://hcb.hackclub.com/donations/start/open-sauce-charity-ticket-buy">hack.club/opensauce</a>
 </div>
 
 <div class="live-badge"><span class="refresh-dot"></span> Live <span id="countdown">10</span>s</div>
