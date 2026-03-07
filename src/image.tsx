@@ -160,8 +160,7 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
         fontFamily: "Jua, Noto Sans",
       }}
     >
-      {/* Total Raised + Total Donors */}
-      <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 28 }}>
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
         <div
           style={{
             display: "flex",
@@ -170,35 +169,15 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
             background: "#7a4841",
             border: "6px solid #ad7858",
             borderRadius: 24,
-            padding: "20px 48px",
+            padding: "20px 48px 12px",
             boxShadow: "0 4px 0 0 #4d2b32",
           }}
         >
-          <div style={{ fontSize: 16, color: "rgba(248,232,209,0.75)", letterSpacing: 3 }}>
-            TOTAL RAISED
+          <div style={{ display: "flex", fontSize: 16, color: "rgba(248,232,209,0.75)", letterSpacing: 3, marginBottom: 6 }}>
+            {`TOTAL RAISED (${totalDonors} DONORS)`}
           </div>
           <div style={{ fontSize: 56, color: "#f8e8d1" }}>
             {formatMoney(totalRaised)}
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#7a4841",
-            border: "6px solid #ad7858",
-            borderRadius: 24,
-            padding: "20px 48px",
-            boxShadow: "0 4px 0 0 #4d2b32",
-          }}
-        >
-          <div style={{ fontSize: 16, color: "rgba(248,232,209,0.75)", letterSpacing: 3 }}>
-            TOTAL DONORS
-          </div>
-          <div style={{ fontSize: 56, color: "#f8e8d1" }}>
-            {String(totalDonors)}
           </div>
         </div>
       </div>
