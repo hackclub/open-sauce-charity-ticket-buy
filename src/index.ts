@@ -212,7 +212,8 @@ const server = Bun.serve({
     }
 
     if (url.pathname === "/api") {
-      const baseUrl = `${url.protocol}//${url.host}`;
+      const proto = req.headers.get("x-forwarded-proto") || url.protocol.replace(":", "");
+      const baseUrl = `${proto}://${url.host}`;
       return new Response(renderApiDocs(baseUrl), {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
