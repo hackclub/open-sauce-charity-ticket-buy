@@ -8,7 +8,7 @@ export async function classifyTransaction(opts: {
   donorName?: string;
 }): Promise<{ isDonation: boolean; displayName: string }> {
   const { text } = await generateText({
-    model: openai("gpt-4.1-nano"),
+    model: openai("gpt-5.4"),
     system: `You analyze financial transactions for a charity donation tracker (Open Sauce Charity Ticket Buy on HCB / Hack Club Bank).
 
 For each transaction, determine:

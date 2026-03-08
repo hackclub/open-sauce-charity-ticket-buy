@@ -28,8 +28,10 @@ export interface MergedDonor {
 /** Merge donations by normalized name, summing amounts and keeping the latest date. */
 export function mergeDonations(donations: AirtableTransaction[]): MergedDonor[] {
   const map = new Map<string, MergedDonor>();
+  let anonCounter = 0;
   for (const d of donations) {
-    const key = normalizeName(d.name);
+    const normalized = normalizeName(d.name);
+    const key = normalized === "anonymous donor" ? `__anon_${anonCounter++}` : normalized;
     const existing = map.get(key);
     if (existing) {
       existing.amount += d.amount;
