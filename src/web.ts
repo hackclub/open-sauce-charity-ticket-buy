@@ -226,7 +226,7 @@ export function renderApiDocs(baseUrl: string): string {
 }
 
 export function renderLeaderboard(leaderboard: { allTime: MergedDonor[]; past24h: MergedDonor[] }): string {
-  const initialData = JSON.stringify(leaderboard);
+  const initialData = JSON.stringify(leaderboard).replace(/</g, "\\u003c").replace(/>/g, "\\u003e");
 
   return `<!DOCTYPE html>
 <html lang="en">
