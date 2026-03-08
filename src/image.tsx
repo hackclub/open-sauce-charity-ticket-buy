@@ -16,7 +16,8 @@ async function loadFonts(): Promise<{ jua: ArrayBuffer; noto: ArrayBuffer }> {
   return { jua, noto };
 }
 
-function formatMoney(amount: number): string {
+function formatMoney(amount: number, decimals = true): string {
+  if (!decimals) return "$" + Math.round(amount).toLocaleString("en-US");
   return "$" + amount.toLocaleString("en-US");
 }
 
@@ -130,6 +131,14 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5);
 
+  const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
+  const totalPast24h = recentDonations.reduce((sum, d) => sum + d.amount, 0);
+
+  // Find the single most recent donation
+  const mostRecent = donations.length > 0
+    ? donations.reduce((latest, d) => (d.date > latest.date ? d : latest))
+    : null;
+
   const now = new Date().toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -156,6 +165,52 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
         fontFamily: "Jua, Noto Sans",
       }}
     >
+      {/* Total Raised Header */}
+      <div style={{ display: "flex", gap: 24, marginBottom: 24 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            flex: 1,
+            background: "#7a4841",
+            border: "6px solid #ad7858",
+            borderRadius: 20,
+            padding: "16px 24px",
+            gap: 8,
+            boxShadow: "0 4px 0 0 #4d2b32",
+          }}
+        >
+          <div style={{ fontSize: 18, color: "rgba(248,232,209,0.7)" }}>
+            Total Raised
+          </div>
+          <div style={{ fontSize: 42, color: "#f8e8d1" }}>
+            {formatMoney(totalRaised, false)}
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            flex: 1,
+            background: "#7a4841",
+            border: "6px solid #ad7858",
+            borderRadius: 20,
+            padding: "16px 24px",
+            gap: 8,
+            boxShadow: "0 4px 0 0 #4d2b32",
+          }}
+        >
+          <div style={{ fontSize: 18, color: "rgba(248,232,209,0.7)" }}>
+            Raised Past 24 Hours
+          </div>
+          <div style={{ fontSize: 42, color: "#f8e8d1" }}>
+            {formatMoney(totalPast24h, false)}
+          </div>
+        </div>
+      </div>
+
       <div style={{ display: "flex", gap: 24 }}>
         {/* All Time */}
         <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
@@ -202,16 +257,45 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
           ))}
         </div>
       </div>
+
+      {/* Most Recent Donor */}
+      {mostRecent && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            marginTop: 20,
+            background: "#7a4841",
+            border: "6px solid #ad7858",
+            borderRadius: 20,
+            padding: "14px 24px",
+            boxShadow: "0 4px 0 0 #4d2b32",
+          }}
+        >
+          <div style={{ fontSize: 22, color: "rgba(248,232,209,0.7)" }}>
+            Most recent donor:
+          </div>
+          <div style={{ fontSize: 22, color: "#f8e8d1" }}>
+            {`${mostRecent.name} (${formatMoney(mostRecent.amount)}) — ${timeAgo(mostRecent.date)}`}
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
       <div
         style={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginTop: 20,
           fontSize: 18,
           color: "rgba(122,72,65,0.7)",
         }}
       >
-        Last updated: {now}
+        <div style={{ display: "flex" }}>hack.club/opensauce</div>
+        <div style={{ display: "flex" }}>{`Last updated: ${now}`}</div>
       </div>
     </div>
   );
@@ -224,7 +308,7 @@ export async function renderLeaderboardImage(
 
   const svg = await satori(<Leaderboard donations={donations} />, {
     width: 1000,
-    height: 880,
+    height: 1100,
     fonts: [
       {
         name: "Jua",
@@ -266,7 +350,7 @@ export async function renderLeaderboardImage(
   }
 
   // Crop by adjusting the SVG height proportionally and re-rendering
-  const svgHeight = 880;
+  const svgHeight = 1100;
   const scale = height / svgHeight; // rendered px per svg unit
   const newSvgHeight = Math.ceil(cropH / scale);
   const croppedSvg = svg
