@@ -205,7 +205,7 @@ const server = Bun.serve({
     const ip = getClientIp(req, server.requestIP(req)?.address ?? "unknown");
     reqCount++;
     ipCounts.set(ip, (ipCounts.get(ip) ?? 0) + 1);
-    const isAsset = url.pathname !== "/" && !url.pathname.startsWith("/api");
+    const isAsset = url.pathname !== "/" && !url.pathname.startsWith("/api") && url.pathname !== "/leaderboard";
     if (isRateLimited(ip, isAsset)) {
       return new Response("Too Many Requests", { status: 429 });
     }
@@ -214,13 +214,13 @@ const server = Bun.serve({
       return new Response(Bun.file(import.meta.dir + "/favicon.png"));
     }
 
-    if (url.pathname === "/og-meta-redirect") {
+    if (url.pathname === "/") {
       return new Response(renderOgMetaRedirect(), {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
     }
 
-    if (url.pathname === "/") {
+    if (url.pathname === "/leaderboard") {
       return new Response(renderLeaderboard(getDonations()), {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
