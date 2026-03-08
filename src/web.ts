@@ -537,7 +537,8 @@ const REFRESH_INTERVAL = 10_000;
 let leaderboard = ${initialData};
 
 function formatMoney(n) {
-  return '$' + Math.round(n).toLocaleString('en-US');
+  if (n % 1 === 0) return '$' + n.toLocaleString('en-US');
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatDate(iso) {
