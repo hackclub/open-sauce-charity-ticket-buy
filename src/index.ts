@@ -8,6 +8,7 @@ import {
   isHcbIdKnown,
   addKnownHcbId,
   replaceTransactions,
+  mergeDonations,
   withLock,
 } from "./store";
 import { renderLeaderboard, renderApiDocs, renderOgMetaRedirect } from "./web";
@@ -221,7 +222,12 @@ const server = Bun.serve({
     }
 
     if (url.pathname === "/leaderboard") {
-      return new Response(renderLeaderboard(getDonations()), {
+      const donations = getDonations();
+      const allTime = mergeDonations(donations).sort((a, b) => b.amount - a.amount);
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const past24h = mergeDonations(donations.filter(d => d.date > oneDayAgo))
+        .sort((a, b) => b.amount - a.amount);
+      return new Response(renderLeaderboard({ allTime, past24h }), {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       });
     }
@@ -254,6 +260,15 @@ const server = Bun.serve({
         amount: d.amount,
         date: d.date,
       })));
+    }
+
+    if (url.pathname === "/api/leaderboard") {
+      const donations = getDonations();
+      const allTime = mergeDonations(donations).sort((a, b) => b.amount - a.amount);
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const past24h = mergeDonations(donations.filter(d => d.date > oneDayAgo))
+        .sort((a, b) => b.amount - a.amount);
+      return Response.json({ allTime, past24h });
     }
 
 

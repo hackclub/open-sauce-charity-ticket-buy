@@ -1,4 +1,4 @@
-import type { AirtableTransaction } from "./airtable";
+import type { MergedDonor } from "./store";
 import { readFileSync } from "fs";
 import { join } from "path";
 
@@ -199,12 +199,8 @@ export function renderApiDocs(baseUrl: string): string {
 </html>`;
 }
 
-export function renderLeaderboard(donations: AirtableTransaction[]): string {
-  const initialData = JSON.stringify(donations.map(d => ({
-    name: d.name,
-    amount: d.amount,
-    date: d.date,
-  })));
+export function renderLeaderboard(leaderboard: { allTime: MergedDonor[]; past24h: MergedDonor[] }): string {
+  const initialData = JSON.stringify(leaderboard);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -512,36 +508,7 @@ export function renderLeaderboard(donations: AirtableTransaction[]): string {
 
 <script>
 const REFRESH_INTERVAL = 10_000;
-const initialData = ${initialData};
-
-function normalizeName(name) {
-  return name.trim().replace(/\\s+/g, ' ').toLowerCase();
-}
-
-function mergeDonations(donations) {
-  const map = new Map();
-  for (const d of donations) {
-    const key = normalizeName(d.name);
-    const existing = map.get(key);
-    if (existing) {
-      existing.amount += d.amount;
-      existing.count++;
-      if (d.date > existing.latestDate) {
-        existing.latestDate = d.date;
-        existing.latestAmount = d.amount;
-      }
-    } else {
-      map.set(key, {
-        name: d.name,
-        amount: d.amount,
-        latestDate: d.date,
-        latestAmount: d.amount,
-        count: 1,
-      });
-    }
-  }
-  return Array.from(map.values());
-}
+let leaderboard = ${initialData};
 
 function formatMoney(n) {
   return '$' + Math.round(n).toLocaleString('en-US');
@@ -607,11 +574,9 @@ function renderEmpty(index) {
     + '</div>';
 }
 
-function render(donations) {
-  const allTime = mergeDonations(donations).sort((a, b) => b.amount - a.amount);
-  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  const recentDonations = donations.filter(d => d.date && new Date(d.date).getTime() > oneDayAgo);
-  const recent = mergeDonations(recentDonations).sort((a, b) => b.amount - a.amount);
+function render(data) {
+  const allTime = data.allTime;
+  const recent = data.past24h;
 
   // Total
   const totalAmount = allTime.reduce((sum, d) => sum + d.amount, 0);
@@ -638,11 +603,10 @@ function render(donations) {
     for (let i = 0; i < 3; i++) recentHtml += renderEmpty(i);
   }
   document.getElementById('recent-rows').innerHTML = recentHtml;
-
 }
 
 // Initial render
-render(initialData);
+render(leaderboard);
 
 // Countdown + refresh
 let secondsLeft = 10;
@@ -656,7 +620,7 @@ setInterval(() => {
 
 async function refresh() {
   try {
-    const res = await fetch('/api/donations');
+    const res = await fetch('/api/leaderboard');
     if (!res.ok) return;
     const data = await res.json();
     render(data);
