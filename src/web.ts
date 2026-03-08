@@ -191,6 +191,32 @@ export function renderApiDocs(baseUrl: string): string {
     <tr><td><code>date</code></td><td>string</td><td>ISO 8601 timestamp of when the donation was first seen</td></tr>
   </table>
 
+  <h2>Leaderboard</h2>
+  <p>Get the merged leaderboard rankings, pre-sorted by total amount.</p>
+  <p><span class="method">GET</span> <span class="endpoint">/api/leaderboard</span></p>
+  <p>Returns a JSON object with two arrays: all-time rankings and past 24 hours.</p>
+  <pre>{
+  "allTime": [
+    {
+      "name": "Zach Latta",
+      "amount": 250,
+      "latestDate": "2026-03-07T05:30:00.000Z",
+      "latestAmount": 50,
+      "count": 3
+    }
+  ],
+  "past24h": [...]
+}</pre>
+  <p>Multiple donations from the same donor are merged together. Each anonymous donor is listed separately.</p>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+    <tr><td><code>name</code></td><td>string</td><td>Donor display name</td></tr>
+    <tr><td><code>amount</code></td><td>number</td><td>Total donated amount in USD</td></tr>
+    <tr><td><code>latestDate</code></td><td>string</td><td>ISO 8601 timestamp of most recent donation</td></tr>
+    <tr><td><code>latestAmount</code></td><td>number</td><td>Amount of most recent donation in USD</td></tr>
+    <tr><td><code>count</code></td><td>number</td><td>Number of donations from this donor</td></tr>
+  </table>
+
   <h2>Rate Limits</h2>
   <p>This infrastructure is managed by a nonprofit with minimal resources. We ask that you please not overwhelm our servers. There is a hard limit of <strong>5 requests per second</strong> per IP address. Requests exceeding this limit will receive a <code>429 Too Many Requests</code> response.</p>
 
