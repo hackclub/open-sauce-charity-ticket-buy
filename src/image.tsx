@@ -125,19 +125,11 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
   const allTime = mergeDonations(donations)
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5);
-  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  const recentDonations = donations.filter((d) => d.date && new Date(d.date).getTime() > oneDayAgo);
-  const recent = mergeDonations(recentDonations)
-    .sort((a, b) => b.amount - a.amount)
+  const recent = [...donations]
+    .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
     .slice(0, 5);
 
   const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
-  const totalPast24h = recentDonations.reduce((sum, d) => sum + d.amount, 0);
-
-  // Find the single most recent donation
-  const mostRecent = donations.length > 0
-    ? donations.reduce((latest, d) => (d.date > latest.date ? d : latest))
-    : null;
 
   const now = new Date().toLocaleString("en-US", {
     month: "short",
@@ -166,7 +158,7 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
       }}
     >
       {/* Total Raised Header */}
-      <div style={{ display: "flex", gap: 24, marginBottom: 24 }}>
+      <div style={{ display: "flex", marginBottom: 24 }}>
         <div
           style={{
             display: "flex",
@@ -188,27 +180,6 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
             {formatMoney(totalRaised, false)}
           </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            flex: 1,
-            background: "#7a4841",
-            border: "6px solid #ad7858",
-            borderRadius: 20,
-            padding: "16px 24px",
-            gap: 8,
-            boxShadow: "0 4px 0 0 #4d2b32",
-          }}
-        >
-          <div style={{ fontSize: 18, color: "rgba(248,232,209,0.7)" }}>
-            Raised Past 24 Hours
-          </div>
-          <div style={{ fontSize: 42, color: "#f8e8d1" }}>
-            {formatMoney(totalPast24h, false)}
-          </div>
-        </div>
       </div>
 
       <div style={{ display: "flex", gap: 24 }}>
@@ -222,7 +193,7 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
               marginBottom: 8,
             }}
           >
-            Top 5 All Time
+            Top 5 Donors
           </div>
           {rows.map((i) => (
             <Card
@@ -234,7 +205,7 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
             />
           ))}
         </div>
-        {/* Past 24 Hours */}
+        {/* Most Recent */}
         <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
           <div
             style={{
@@ -244,7 +215,7 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
               marginBottom: 8,
             }}
           >
-            Top 5 Past 24 Hours
+            Most Recent
           </div>
           {rows.map((i) => (
             <Card
@@ -252,36 +223,11 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
               rank={i + 1}
               name={recent[i]?.name || null}
               amount={recent[i]?.amount ?? null}
-              time={recent[i] ? (recent[i].count > 1 ? `${formatMoney(recent[i].latestAmount)} more ${timeAgo(recent[i].latestDate)}` : timeAgo(recent[i].latestDate)) : ""}
+              time={recent[i] ? timeAgo(recent[i].date) : ""}
             />
           ))}
         </div>
       </div>
-
-      {/* Most Recent Donor */}
-      {mostRecent && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            marginTop: 20,
-            background: "#7a4841",
-            border: "6px solid #ad7858",
-            borderRadius: 20,
-            padding: "14px 24px",
-            boxShadow: "0 4px 0 0 #4d2b32",
-          }}
-        >
-          <div style={{ fontSize: 22, color: "rgba(248,232,209,0.7)" }}>
-            Most recent donor:
-          </div>
-          <div style={{ fontSize: 22, color: "#f8e8d1" }}>
-            {`${mostRecent.name} (${formatMoney(mostRecent.amount)}) — ${timeAgo(mostRecent.date)}`}
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <div
