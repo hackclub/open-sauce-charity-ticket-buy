@@ -121,17 +121,54 @@ function Card({
   );
 }
 
-function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
-  const allTime = mergeDonations(donations)
-    .sort((a, b) => b.amount - a.amount)
-    .slice(0, 5);
-  const recent = [...donations]
-    .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
-    .slice(0, 5);
+function Footer({ now }: { now: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: 20,
+        fontSize: 18,
+        color: "rgba(122,72,65,0.7)",
+      }}
+    >
+      <div style={{ display: "flex" }}>hack.club/opensauce</div>
+      <div style={{ display: "flex" }}>{`Last updated: ${now}`}</div>
+    </div>
+  );
+}
 
-  const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
+function TotalRaisedHeader({ totalRaised }: { totalRaised: number }) {
+  return (
+    <div style={{ display: "flex", marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          flex: 1,
+          background: "#7a4841",
+          border: "6px solid #ad7858",
+          borderRadius: 20,
+          padding: "16px 24px",
+          gap: 8,
+          boxShadow: "0 4px 0 0 #4d2b32",
+        }}
+      >
+        <div style={{ fontSize: 18, color: "rgba(248,232,209,0.7)" }}>
+          Total Raised
+        </div>
+        <div style={{ fontSize: 42, color: "#f8e8d1" }}>
+          {formatMoney(totalRaised, false)}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  const now = new Date().toLocaleString("en-US", {
+function getNow(): string {
+  return new Date().toLocaleString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -140,7 +177,19 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
     hour12: true,
     timeZone: "America/Los_Angeles",
   }) + " Los Angeles time";
+}
 
+/** Active view: donations are flowing (most recent < 24h ago) */
+function ActiveLeaderboard({ donations }: { donations: AirtableTransaction[] }) {
+  const allTime = mergeDonations(donations)
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+  const recent = [...donations]
+    .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
+    .slice(0, 5);
+
+  const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
+  const now = getNow();
   const rows = Array.from({ length: 5 }, (_, i) => i);
 
   return (
@@ -157,30 +206,7 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
         fontFamily: "Jua, Noto Sans",
       }}
     >
-      {/* Total Raised Header */}
-      <div style={{ display: "flex", marginBottom: 24 }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            flex: 1,
-            background: "#7a4841",
-            border: "6px solid #ad7858",
-            borderRadius: 20,
-            padding: "16px 24px",
-            gap: 8,
-            boxShadow: "0 4px 0 0 #4d2b32",
-          }}
-        >
-          <div style={{ fontSize: 18, color: "rgba(248,232,209,0.7)" }}>
-            Total Raised
-          </div>
-          <div style={{ fontSize: 42, color: "#f8e8d1" }}>
-            {formatMoney(totalRaised, false)}
-          </div>
-        </div>
-      </div>
+      <TotalRaisedHeader totalRaised={totalRaised} />
 
       <div style={{ display: "flex", gap: 24 }}>
         {/* All Time */}
@@ -229,22 +255,117 @@ function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
         </div>
       </div>
 
-      {/* Footer */}
+      <Footer now={now} />
+    </div>
+  );
+}
+
+/** Quiet view: no donations for a while (most recent > 24h ago) */
+function QuietLeaderboard({ donations }: { donations: AirtableTransaction[] }) {
+  const allTime = mergeDonations(donations)
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 10);
+
+  const totalRaised = donations.reduce((sum, d) => sum + d.amount, 0);
+  const totalDonors = mergeDonations(donations).length;
+  const now = getNow();
+
+  const mostRecent = [...donations].sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0];
+  const lastDonationDate = mostRecent ? formatDate(mostRecent.date) : "";
+
+  const leftCol = allTime.slice(0, 5);
+  const rightCol = allTime.slice(5, 10);
+  const rows = Array.from({ length: 5 }, (_, i) => i);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        background: "#f8e8d1",
+        border: "12px solid #ad7858",
+        borderRadius: 40,
+        padding: 40,
+        width: 1000,
+        boxShadow: "0 8px 0 0 #c4a882",
+        fontFamily: "Jua, Noto Sans",
+      }}
+    >
+      <TotalRaisedHeader totalRaised={totalRaised} />
+
+      {/* Stats row */}
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: 20,
-          fontSize: 18,
-          color: "rgba(122,72,65,0.7)",
+          justifyContent: "center",
+          gap: 32,
+          marginBottom: 20,
+          fontSize: 20,
+          color: "#7a4841",
         }}
       >
-        <div style={{ display: "flex" }}>hack.club/opensauce</div>
-        <div style={{ display: "flex" }}>{`Last updated: ${now}`}</div>
+        <div style={{ display: "flex" }}>{totalDonors} donors</div>
+        <div style={{ display: "flex" }}>Last donation: {lastDonationDate}</div>
       </div>
+
+      {/* Section header */}
+      <div
+        style={{
+          fontSize: 32,
+          color: "#7a4841",
+          textAlign: "center",
+          marginBottom: 16,
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        Top Donors
+      </div>
+
+      <div style={{ display: "flex", gap: 24 }}>
+        {/* Left column: ranks 1-5 */}
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
+          {rows.map((i) => (
+            <Card
+              key={i}
+              rank={i + 1}
+              name={leftCol[i]?.name || null}
+              amount={leftCol[i]?.amount ?? null}
+              time={leftCol[i] ? formatDate(leftCol[i].latestDate) : ""}
+            />
+          ))}
+        </div>
+        {/* Right column: ranks 6-10 */}
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 12 }}>
+          {rows.map((i) => (
+            <Card
+              key={i}
+              rank={i + 6}
+              name={rightCol[i]?.name || null}
+              amount={rightCol[i]?.amount ?? null}
+              time={rightCol[i] ? formatDate(rightCol[i].latestDate) : ""}
+            />
+          ))}
+        </div>
+      </div>
+
+      <Footer now={now} />
     </div>
   );
+}
+
+function Leaderboard({ donations }: { donations: AirtableTransaction[] }) {
+  const mostRecent = [...donations].sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0];
+  const hoursSinceLastDonation = mostRecent
+    ? (Date.now() - new Date(mostRecent.date).getTime()) / (1000 * 60 * 60)
+    : Infinity;
+
+  const isActive = hoursSinceLastDonation < 24;
+
+  if (isActive) {
+    return <ActiveLeaderboard donations={donations} />;
+  }
+  return <QuietLeaderboard donations={donations} />;
 }
 
 export async function renderLeaderboardImage(
