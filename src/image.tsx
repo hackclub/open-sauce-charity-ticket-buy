@@ -157,7 +157,7 @@ function TotalRaisedHeader({ totalRaised }: { totalRaised: number }) {
         }}
       >
         <div style={{ fontSize: 18, color: "rgba(248,232,209,0.7)" }}>
-          Total Raised
+          Raised to Send Teens to Open Sauce
         </div>
         <div style={{ fontSize: 42, color: "#f8e8d1" }}>
           {formatMoney(totalRaised, false)}
